@@ -6,7 +6,7 @@
 
 generator client {
     provider = "prisma-client-js"
-    // output   = "../src/generated/prisma"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,18 +14,99 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int     @id @default(autoincrement())
-    title     String
-    content   String?
-    published Boolean @default(false)
-    author    User?   @relation(fields: [authorId], references: [id])
-    authorId  Int?
+// ----------------------------------------
+// ENUMS
+// Using enums for status fields ensures data integrity.
+// ----------------------------------------
+enum RoundStatus {
+    ACTIVE
+    CLOSED
 }
 
+enum CommitmentStatus {
+    PENDING_REVIEW
+    APPROVED
+    FUNDED
+    REJECTED
+}
+
+// ----------------------------------------
+// MODELS
+// ----------------------------------------
+
+/// Represents a user who can be an admin (company), an investor, or both.
 model User {
-    id    Int     @id @default(autoincrement())
-    email String  @unique
-    name  String?
-    posts Post[]
+    id        Int      @id // must match auth
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // A user (as an admin) can create multiple fundraising rounds.
+    createdRounds        Round[]               @relation("CompanyRounds")
+    // A user (as an investor) can make multiple commitments.
+    investments          Commitment[]          @relation("InvestorCommits")
+    // A user (as an admin) can be responsible for many status changes.
+    commitmentLogChanges CommitmentStatusLog[] @relation("AdminChanges")
+
+    @@map("users")
+}
+
+/// Represents a single fundraising round created by a company/admin.
+model Round {
+    id           Int         @id @default(autoincrement())
+    name         String
+    targetAmount Float
+    status       RoundStatus @default(ACTIVE)
+    createdAt    DateTime    @default(now())
+    updatedAt    DateTime    @updatedAt
+
+    // The admin/company user who created this round.
+    companyUserId Int
+    company       User @relation("CompanyRounds", fields: [companyUserId], references: [id])
+
+    // A round can have many commitments from different investors.
+    commitments Commitment[]
+
+    @@map("rounds")
+}
+
+/// Represents an investor's commitment to a specific fundraising round.
+model Commitment {
+    id              Int              @id @default(autoincrement())
+    amountCommitted Float
+    status          CommitmentStatus @default(PENDING_REVIEW)
+    documentsS3Url  String?
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+
+    // The round this commitment belongs to.
+    roundId Int
+    round   Round @relation(fields: [roundId], references: [id])
+
+    // The investor user who made this commitment.
+    investorUserId Int
+    investor       User @relation("InvestorCommits", fields: [investorUserId], references: [id])
+
+    // The audit trail for this commitment's status changes.
+    statusLogs CommitmentStatusLog[]
+
+    @@map("commitments")
+}
+
+/// The audit trail. An immutable log of every status change for a commitment.
+model CommitmentStatusLog {
+    id        Int              @id @default(autoincrement())
+    oldStatus CommitmentStatus
+    newStatus CommitmentStatus
+    timestamp DateTime         @default(now())
+
+    // The commitment that was changed.
+    commitmentId Int
+    commitment   Commitment @relation(fields: [commitmentId], references: [id])
+
+    // The admin user who made the change.
+    changedByUserId Int
+    changedBy       User @relation("AdminChanges", fields: [changedByUserId], references: [id])
+
+    @@map("commitment_status_logs")
 }
