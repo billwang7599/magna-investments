@@ -1,12 +1,9 @@
 "use server";
-import {
-    getCommitmentsByRoundId,
-    updateCommitmentStatus,
-} from "@/lib/actions/commitment";
+import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
 import { getUserById } from "@/lib/actions/users";
 import { $Enums } from "@/generated/prisma";
 import React from "react";
-import Contributers from "./Contributers";
+import Contributers from "./Contributors";
 
 type Commitment = {
     id: string;
@@ -53,21 +50,5 @@ export default async function ContributorsTable({
         );
     }
 
-    // Handler to update multiple commitment statuses, passed to client component
-    async function handleSave(
-        updates: { id: string; status: $Enums.CommitmentStatus }[],
-    ) {
-        "use server";
-        await Promise.all(
-            updates.map(({ id, status }) => updateCommitmentStatus(id, status)),
-        );
-    }
-
-    return (
-        <Contributers
-            initialCommitments={commitments}
-            userMap={users}
-            onSave={handleSave}
-        />
-    );
+    return <Contributers initialCommitments={commitments} userMap={users} />;
 }

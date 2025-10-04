@@ -8,10 +8,9 @@ import React from "react";
 
 type Props = {
     params: { slug: string };
-    searchParams: Record<string, string | string[] | undefined>;
 };
 
-export default async function CommitmentPage({ params, searchParams }: Props) {
+export default async function CommitmentPage({ params }: Props) {
     // SSR: Get current user from Supabase
     const supabase = await createClient();
     const {

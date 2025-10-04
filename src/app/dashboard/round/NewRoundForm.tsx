@@ -1,21 +1,16 @@
-import React, { useState } from "react";
-import Card from "./Card";
-import { Button } from "./Button";
-import { Input } from "./Input";
+import React, { useState, useTransition } from "react";
+import Card from "@/components/Card";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
 import { Currency } from "@/generated/prisma";
+import { useRouter } from "next/navigation";
+import { createRound } from "@/lib/actions/round";
 
 type NewRoundFormProps = {
-    onCreate: (data: {
-        name: string;
-        targetAmount: number;
-        minContributionAmount: number;
-        maxContributionAmount: number;
-        currency: Currency;
-    }) => Promise<void>;
-    loading?: boolean;
+    userId: string;
 };
 
-const NewRoundForm: React.FC<NewRoundFormProps> = ({ onCreate, loading }) => {
+const NewRoundForm: React.FC<NewRoundFormProps> = ({ userId }) => {
     const [name, setName] = useState("");
     const [targetAmount, setTargetAmount] = useState<number | "">("");
     const [minContributionAmount, setMinContributionAmount] = useState<
@@ -26,6 +21,8 @@ const NewRoundForm: React.FC<NewRoundFormProps> = ({ onCreate, loading }) => {
     >("");
     const [currency, setCurrency] = useState<Currency>(Currency.USDC);
     const [error, setError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,23 +41,26 @@ const NewRoundForm: React.FC<NewRoundFormProps> = ({ onCreate, loading }) => {
             return;
         }
 
-        try {
-            await onCreate({
-                name: name.trim(),
-                targetAmount: Number(targetAmount),
-                minContributionAmount: Number(minContributionAmount),
-                maxContributionAmount: Number(maxContributionAmount),
-                currency,
-            });
-            setName("");
-            setTargetAmount("");
-            setMinContributionAmount("");
-            setMaxContributionAmount("");
-            setCurrency(Currency.USDC);
-        } catch (err) {
-            setError("Failed to create round. Please try again.");
-            console.error(err);
-        }
+        startTransition(async () => {
+            try {
+                await createRound(
+                    name.trim(),
+                    Number(targetAmount),
+                    userId,
+                    Number(minContributionAmount),
+                    Number(maxContributionAmount),
+                    currency,
+                );
+                setName("");
+                setTargetAmount("");
+                setMinContributionAmount("");
+                setMaxContributionAmount("");
+                setCurrency(Currency.USDC);
+                router.refresh();
+            } catch {
+                setError("Failed to create round. Please try again.");
+            }
+        });
     };
 
     return (
@@ -143,9 +143,9 @@ const NewRoundForm: React.FC<NewRoundFormProps> = ({ onCreate, loading }) => {
                     type="submit"
                     variant="primary"
                     className="w-full mt-2"
-                    disabled={loading}
+                    disabled={isPending}
                 >
-                    {loading ? "Creating..." : "Create Round"}
+                    {isPending ? "Creating..." : "Create Round"}
                 </Button>
             </form>
         </Card>

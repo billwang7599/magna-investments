@@ -1,4 +1,4 @@
-import Card from "./Card";
+import Card from "@/components/Card";
 import { Round } from "@/generated/prisma";
 import Link from "next/link";
 

@@ -21,16 +21,13 @@ export default function InvestorDash({
     const [invites, setInvites] = useState<
         (Invite & { round: Round | null; commitment: Commitment | null })[]
     >([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             if (!userEmail) return;
             setLoading(true);
-            console.log("before");
             const invitesRes = await getInvitesByUserEmail(userEmail);
-            console.log("after");
-            console.log("Invites:", invitesRes);
             // Fetch round info for each invite
             const rounds = await Promise.all(
                 invitesRes.map((invite) => getRound(invite.roundId)),
@@ -77,7 +74,11 @@ export default function InvestorDash({
                 </p>
             </div>
             <Card title="Rounds You're Invited To">
-                {invites.length === 0 ? (
+                {loading ? (
+                    <div className="text-text-secondary text-center py-4">
+                        Loading invites...
+                    </div>
+                ) : invites.length === 0 ? (
                     <div className="text-text-secondary text-center py-4">
                         No invites yet.
                     </div>
@@ -86,10 +87,11 @@ export default function InvestorDash({
                         {invites.map((invite) => (
                             <li
                                 key={invite.id}
-                                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border pb-2"
+                                className="border-b border-border pb-2"
                             >
-                                <div>
-                                    <span className="font-medium text-text-primary">
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+                                    {/* Round Name */}
+                                    <div className="md:col-span-4 col-span-12 font-medium text-text-primary">
                                         Round:{" "}
                                         {invite.round ? (
                                             <span>{invite.round.name}</span>
@@ -98,66 +100,70 @@ export default function InvestorDash({
                                                 Unknown
                                             </span>
                                         )}
-                                    </span>
-                                </div>
-                                {invite.status === InviteStatus.PENDING && (
-                                    <div className="flex gap-2">
-                                        <Button
-                                            variant="primary"
-                                            disabled={loading}
-                                            onClick={() =>
-                                                handleInviteAction(
-                                                    invite.id,
-                                                    "ACCEPTED",
-                                                )
-                                            }
-                                        >
-                                            Accept
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            disabled={loading}
-                                            onClick={() =>
-                                                handleInviteAction(
-                                                    invite.id,
-                                                    "REJECTED",
-                                                )
-                                            }
-                                        >
-                                            Reject
-                                        </Button>
                                     </div>
-                                )}
-                                {invite.status === InviteStatus.ACCEPTED &&
-                                    invite.round && (
-                                        <div>
-                                            <Link
-                                                href={`/dashboard/commitement/${invite.round.id}`}
-                                                className="text-primary underline"
-                                            >
-                                                Go to Commitment Page
-                                            </Link>
-                                        </div>
-                                    )}
-                                <div className="w-full sm:w-auto">
-                                    {invite.commitment ? (
-                                        <div className="text-sm text-text-primary">
-                                            Contribution:{" "}
-                                            <span className="font-semibold">
-                                                {
-                                                    invite.commitment
-                                                        .amountCommitted
-                                                }
-                                            </span>
-                                            <span className="ml-2 text-xs px-2 py-1 rounded bg-gray-100 border border-border">
-                                                {invite.commitment.status}
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <div className="text-sm text-text-secondary">
-                                            No contribution yet.
-                                        </div>
-                                    )}
+                                    {/* Commitment Page Link or Invite Actions */}
+                                    <div className="md:col-span-4 col-span-12 flex flex-wrap gap-2 justify-start md:justify-center">
+                                        {invite.status ===
+                                            InviteStatus.PENDING && (
+                                            <>
+                                                <Button
+                                                    variant="primary"
+                                                    disabled={loading}
+                                                    onClick={() =>
+                                                        handleInviteAction(
+                                                            invite.id,
+                                                            "ACCEPTED",
+                                                        )
+                                                    }
+                                                >
+                                                    Accept
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    disabled={loading}
+                                                    onClick={() =>
+                                                        handleInviteAction(
+                                                            invite.id,
+                                                            "REJECTED",
+                                                        )
+                                                    }
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </>
+                                        )}
+                                        {invite.status ===
+                                            InviteStatus.ACCEPTED &&
+                                            invite.round && (
+                                                <Link
+                                                    href={`/dashboard/commitment/${invite.round.id}`}
+                                                    className="text-primary underline"
+                                                >
+                                                    Go to Commitment Page
+                                                </Link>
+                                            )}
+                                    </div>
+                                    {/* Contribution */}
+                                    <div className="md:col-span-4 col-span-12 flex flex-col md:items-end items-start">
+                                        {invite.commitment ? (
+                                            <div className="text-sm text-text-primary">
+                                                Contribution:{" "}
+                                                <span className="font-semibold">
+                                                    {
+                                                        invite.commitment
+                                                            .amountCommitted
+                                                    }
+                                                </span>
+                                                <span className="ml-2 text-xs px-2 py-1 rounded bg-gray-100 border border-border text-black">
+                                                    {invite.commitment.status}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-text-secondary">
+                                                No contribution yet.
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </li>
                         ))}

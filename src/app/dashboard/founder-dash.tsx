@@ -1,49 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import Card from "@/components/Card";
-import RoundList from "@/components/RoundList";
-import NewRoundForm from "@/components/NewRoundForm";
-import { getRoundsByFounder, createRound } from "@/lib/actions/round";
-import { Round, Currency } from "@/generated/prisma";
+import RoundList from "@/app/dashboard/round/RoundList";
+import NewRoundForm from "@/app/dashboard/round/NewRoundForm";
+import { getRoundsByFounder } from "@/lib/actions/round";
+import { Round } from "@/generated/prisma";
 import { Button } from "@/components/Button";
 
 export default function FounderDash({ userId }: { userId: string }) {
     const [rounds, setRounds] = useState<Round[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
         async function fetchRounds() {
             if (userId) {
+                setLoading(true);
                 const result = await getRoundsByFounder(userId);
                 setRounds(result || []);
+                setLoading(false);
             }
         }
         fetchRounds();
     }, [userId]);
 
-    const handleCreateRound = async (data: {
-        name: string;
-        targetAmount: number;
-        minContributionAmount: number;
-        maxContributionAmount: number;
-        currency: Currency;
-    }) => {
-        if (!userId) return;
-        setLoading(true);
-        await createRound(
-            data.name,
-            data.targetAmount,
-            userId,
-            data.minContributionAmount,
-            data.maxContributionAmount,
-            data.currency as Currency,
-        );
-        const updatedRounds = await getRoundsByFounder(userId);
-        setRounds(updatedRounds || []);
-        setLoading(false);
-        setShowForm(false);
-    };
+    // Removed handleCreateRound; logic now handled inside NewRoundForm
 
     return (
         <div className="flex flex-col gap-8">
@@ -63,17 +44,20 @@ export default function FounderDash({ userId }: { userId: string }) {
                 </div>
                 {showForm && (
                     <Card className="mb-6">
-                        <NewRoundForm
-                            onCreate={handleCreateRound}
-                            loading={loading}
-                        />
+                        <NewRoundForm userId={userId} />
                     </Card>
                 )}
                 <Card>
-                    <RoundList
-                        rounds={rounds}
-                        emptyText="No rounds yet. Create your first round!"
-                    />
+                    {loading ? (
+                        <div className="text-center text-text-secondary py-8">
+                            Loading rounds...
+                        </div>
+                    ) : (
+                        <RoundList
+                            rounds={rounds}
+                            emptyText="No rounds yet. Create your first round!"
+                        />
+                    )}
                 </Card>
             </div>
         </div>

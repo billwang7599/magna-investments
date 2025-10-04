@@ -1,15 +1,28 @@
-"use server";
+"use client";
 import { createInvite } from "@/lib/actions/invites";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import React from "react";
 
-export default async function InviteForm({ roundId }: { roundId: string }) {
+export default function InviteForm({ roundId }: { roundId: string }) {
+    const [error, setError] = React.useState<string | null>(null);
+
     async function handleInvite(formData: FormData) {
-        "use server";
         const email = formData.get("inviteEmail") as string;
         if (!email) return;
-        await createInvite({ userEmail: email, roundId });
+        setError(null);
+        try {
+            await createInvite({ userEmail: email, roundId });
+        } catch (err: unknown) {
+            if (
+                err instanceof Error &&
+                err.message.includes("User not found")
+            ) {
+                setError("User not found. Invite them to use the app!");
+            } else {
+                setError("Failed to send invite.");
+            }
+        }
     }
 
     return (
@@ -26,6 +39,7 @@ export default async function InviteForm({ roundId }: { roundId: string }) {
             <Button type="submit" variant="primary">
                 Invite
             </Button>
+            {error && <div className="text-red-500 text-sm ml-2">{error}</div>}
         </form>
     );
 }

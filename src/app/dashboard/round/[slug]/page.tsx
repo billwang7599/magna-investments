@@ -1,13 +1,13 @@
-import { notFound } from "next/navigation";
-import { getRound } from "@/lib/actions/round";
-import { getInvitesByRound } from "@/lib/actions/invites";
-import Card from "@/components/Card";
 import React from "react";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
-// Abstracted client/server components
+import Card from "@/components/Card";
 import InviteForm from "./InviteForm";
 import ContributorsTable from "./ContributorsTable";
+import RoundStatusSection from "./RoundStatusSection";
+import { getRound } from "@/lib/actions/round";
+import { getInvitesByRound } from "@/lib/actions/invites";
+import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
 
 type Props = {
     params: { slug: string };
@@ -38,77 +38,142 @@ export default async function RoundDetailsPage({ params }: Props) {
         notFound();
     }
 
+    // --- Round status is now handled in a separate server component (RoundStatusSection) ---
+
+    const commitments = await getCommitmentsByRoundId(roundId);
+
+    // Calculate totals
+    const fundedTotal = commitments
+        .filter((c) => c.status === "FUNDED")
+        .reduce((sum, c) => sum + (c.amountCommitted || 0), 0);
+
+    const approvedTotal = commitments
+        .filter((c) => c.status === "APPROVED")
+        .reduce((sum, c) => sum + (c.amountCommitted || 0), 0);
+
+    const expectedTotal = commitments
+        .filter((c) => c.status === "APPROVED" || c.status === "FUNDED")
+        .reduce((sum, c) => sum + (c.amountCommitted || 0), 0);
+
     const invites = await getInvitesByRound(roundId);
 
     return (
-        <div className="max-w-3xl mx-auto py-8 flex flex-col gap-8">
-            <Card title={`Round: ${round.name}`}>
-                <div className="mb-4">
-                    <div className="text-ui text-text-secondary mb-1">
-                        Target Amount
-                    </div>
-                    <div className="font-bold text-lg text-text-primary mb-2">
-                        {round.currency} {round.targetAmount.toLocaleString()}
-                    </div>
-                    <div className="flex gap-8 flex-wrap">
+        <div className="max-w-3xl mx-auto py-10 flex flex-col gap-10">
+            <Card>
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <span className="text-ui text-text-secondary">
-                                Min Contribution:{" "}
-                            </span>
-                            <span className="font-medium">
+                            <h2 className="text-2xl font-bold text-primary mb-1">
+                                {round.name}
+                            </h2>
+                            <div className="text-ui text-text-secondary mb-1">
+                                Target Amount
+                            </div>
+                            <div className="font-bold text-lg text-text-primary mb-2">
+                                {round.currency}{" "}
+                                {round.targetAmount.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 min-w-[220px]">
+                            <div className="flex items-center gap-2">
+                                <span className="text-ui text-text-secondary">
+                                    Status:
+                                </span>
+                                <RoundStatusSection
+                                    roundId={round.id}
+                                    initialStatus={round.status}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-ui text-text-secondary">
+                                    Created:
+                                </span>
+                                <span className="font-medium">
+                                    {new Date(
+                                        round.createdAt,
+                                    ).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <div className="text-ui text-text-secondary">
+                            Min Contribution:{" "}
+                            <span className="font-medium text-text-primary">
                                 {round.currency}{" "}
                                 {round.minContributionAmount.toLocaleString()}
                             </span>
                         </div>
-                        <div>
-                            <span className="text-ui text-text-secondary">
-                                Max Contribution:{" "}
-                            </span>
-                            <span className="font-medium">
+                        <div className="text-ui text-text-secondary">
+                            Max Contribution:{" "}
+                            <span className="font-medium text-text-primary">
                                 {round.currency}{" "}
                                 {round.maxContributionAmount.toLocaleString()}
                             </span>
                         </div>
-                        <div>
-                            <span className="text-ui text-text-secondary">
-                                Status:{" "}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                        <div className="bg-surface rounded-md p-4 border border-border flex flex-col">
+                            <span className="text-ui text-text-secondary mb-1">
+                                Total Funded
                             </span>
-                            <span className="font-medium">{round.status}</span>
+                            <span className="font-medium text-lg">
+                                {round.currency} {fundedTotal.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-text-secondary mt-1">
+                                Funded contributions
+                            </span>
                         </div>
-                        <div>
-                            <span className="text-ui text-text-secondary">
-                                Created:{" "}
+                        <div className="bg-surface rounded-md p-4 border border-border flex flex-col">
+                            <span className="text-ui text-text-secondary mb-1">
+                                Total Approved
                             </span>
-                            <span className="font-medium">
-                                {new Date(round.createdAt).toLocaleDateString()}
+                            <span className="font-medium text-lg">
+                                {round.currency}{" "}
+                                {approvedTotal.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-text-secondary mt-1">
+                                Approved contributions
+                            </span>
+                        </div>
+                        <div className="bg-surface rounded-md p-4 border border-border flex flex-col">
+                            <span className="text-ui text-text-secondary mb-1">
+                                Total Expected
+                            </span>
+                            <span className="font-medium text-lg">
+                                {round.currency}{" "}
+                                {expectedTotal.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-text-secondary mt-1">
+                                Approved + Funded
                             </span>
                         </div>
                     </div>
-                </div>
-                <div className="mt-6">
-                    <InviteForm roundId={roundId} />
-                    <div className="mb-2 font-semibold text-text-primary">
-                        Invited Users
-                    </div>
-                    {invites.length === 0 ? (
-                        <div className="text-text-secondary mb-4">
-                            No invites yet.
+                    <div className="mt-6">
+                        <InviteForm roundId={roundId} />
+                        <div className="mb-2 font-semibold text-text-primary">
+                            Invited Users
                         </div>
-                    ) : (
-                        <ul className="mb-4">
-                            {invites.map((invite) => (
-                                <li
-                                    key={invite.id}
-                                    className="flex gap-2 items-center text-ui"
-                                >
-                                    <span>{invite.userEmail}</span>
-                                    <span className="text-xs px-2 py-1 rounded bg-gray-100 border border-border text-black">
-                                        {invite.status}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                        {invites.length === 0 ? (
+                            <div className="text-text-secondary mb-4">
+                                No invites yet.
+                            </div>
+                        ) : (
+                            <ul className="mb-4">
+                                {invites.map((invite) => (
+                                    <li
+                                        key={invite.id}
+                                        className="flex gap-2 items-center text-ui"
+                                    >
+                                        <span>{invite.userEmail}</span>
+                                        <span className="text-xs px-2 py-1 rounded bg-gray-100 border border-border text-black">
+                                            {invite.status}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
             </Card>
             <Card title="Contributors">

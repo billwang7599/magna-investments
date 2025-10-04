@@ -18,19 +18,19 @@ const Card: React.FC<CardProps> = ({
     return (
         <div
             className={clsx(
-                "bg-surface border border-border rounded-md p-6",
+                "bg-gradient-radial from-surface-100 via-surface-200 to-background border-2 border-accent rounded-2xl p-6 shadow-lg",
                 className,
             )}
             {...props}
         >
             {title && (
-                <div className="mb-4 text-h3 font-heading text-text-primary">
+                <div className="mb-4 text-2xl font-bold text-brand">
                     {title}
                 </div>
             )}
             <div>{children}</div>
             {footer && (
-                <div className="pt-4 border-t border-border">{footer}</div>
+                <div className="pt-4 border-t border-accent">{footer}</div>
             )}
         </div>
     );

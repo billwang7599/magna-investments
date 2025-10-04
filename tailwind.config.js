@@ -1,43 +1,38 @@
+// tailwind.config.js
 module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        background: "#0D0B12",
-        surface: "#1A1821",
-        primary: "#D946EF",
-        "text-primary": "#F5F5F5",
-        "text-secondary": "#A09FA6",
-        border: "#302D3A",
-      },
-      fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        heading: ["Inter", "sans-serif"],
-        ui: ["Inter", "sans-serif"],
-      },
-      fontWeight: {
-        heading: "700",
-        body: "400",
-        ui: "500",
-      },
-      fontSize: {
-        h1: "48px",
-        h2: "36px",
-        h3: "24px",
-        body: "16px",
-        ui: "14px",
-      },
-      borderRadius: {
-        md: "8px",
-      },
-      spacing: {
-        3: "24px", // 3 units = 24px
-      },
+    theme: {
+        extend: {
+            colors: {
+                background: "#18192A", // deep blue-black, less harsh than pure black
+                "surface-100": "#23243A", // slightly lighter, with a hint of blue
+                "surface-200": "#2E3050", // even lighter, for cards/containers
+                brand: {
+                    DEFAULT: "#C64EFF",
+                    light: "#D47AFF",
+                    dark: "#A93ADF",
+                },
+                accent: {
+                    DEFAULT: "#4EFFF8", // teal/cyan accent for vibrancy
+                    light: "#7AFFF9",
+                    dark: "#3ADFD6",
+                },
+                content: {
+                    primary: "#FFFFFF",
+                    secondary: "#E0E0E0",
+                    tertiary: "#A0A0A0",
+                },
+                border: "#3A3B5A", // blue-tinted border
+                success: "#00C48C",
+                warning: "#FFD600",
+                error: "#FF4E4E",
+                info: "#4E8FFF",
+            },
+            backgroundImage: {
+                "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+                "gradient-brand":
+                    "linear-gradient(90deg, #C64EFF 0%, #4EFFF8 100%)",
+            },
+        },
     },
-  },
-  plugins: [],
+    plugins: [],
 };

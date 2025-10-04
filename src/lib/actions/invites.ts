@@ -6,6 +6,8 @@ import { Invite, InviteStatus } from "@/generated/prisma";
  * Create a new invite for a user to a round.
  * Throws if the invite already exists (unique constraint).
  */
+import { getUserByEmail } from "@/lib/actions/users";
+
 export async function createInvite({
     userEmail,
     roundId,
@@ -15,6 +17,11 @@ export async function createInvite({
     roundId: string;
     status?: InviteStatus;
 }): Promise<Invite> {
+    // Check if user exists
+    const user = await getUserByEmail(userEmail);
+    if (!user) {
+        throw new Error("User not found. Invite them to use the app!");
+    }
     const invite = await prisma.invite.create({
         data: {
             userEmail,
