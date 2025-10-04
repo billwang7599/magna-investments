@@ -30,14 +30,26 @@ enum CommitmentStatus {
     REJECTED
 }
 
+enum InviteStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum Currency {
+    USDC
+    USDT
+}
+
 // ----------------------------------------
 // MODELS
 // ----------------------------------------
 
 /// Represents a user who can be an admin (company), an investor, or both.
 model User {
-    id        Int      @id // must match auth
+    id        String   @id // must match auth
     name      String
+    email     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -47,32 +59,51 @@ model User {
     investments          Commitment[]          @relation("InvestorCommits")
     // A user (as an admin) can be responsible for many status changes.
     commitmentLogChanges CommitmentStatusLog[] @relation("AdminChanges")
+    Invite               Invite[]
 
     @@map("users")
 }
 
 /// Represents a single fundraising round created by a company/admin.
 model Round {
-    id           Int         @id @default(autoincrement())
-    name         String
-    targetAmount Float
-    status       RoundStatus @default(ACTIVE)
-    createdAt    DateTime    @default(now())
-    updatedAt    DateTime    @updatedAt
+    id                    String      @id @default(uuid())
+    name                  String
+    targetAmount          Float
+    minContributionAmount Float
+    maxContributionAmount Float
+    status                RoundStatus @default(ACTIVE)
+    createdAt             DateTime    @default(now())
+    updatedAt             DateTime    @updatedAt
+    currency              Currency
 
     // The admin/company user who created this round.
-    companyUserId Int
-    company       User @relation("CompanyRounds", fields: [companyUserId], references: [id])
+    companyUserId String
+    company       User   @relation("CompanyRounds", fields: [companyUserId], references: [id])
 
     // A round can have many commitments from different investors.
     commitments Commitment[]
 
+    public Boolean  @default(false)
+    Invite Invite[]
+
     @@map("rounds")
+}
+
+model Invite {
+    id        String       @id @default(uuid())
+    status    InviteStatus @default(PENDING)
+    userEmail String
+    roundId   String
+    round     Round        @relation(fields: [roundId], references: [id])
+    user      User         @relation(fields: [userEmail], references: [email])
+
+    @@unique([userEmail, roundId])
+    @@map("invites")
 }
 
 /// Represents an investor's commitment to a specific fundraising round.
 model Commitment {
-    id              Int              @id @default(autoincrement())
+    id              String           @id @default(uuid())
     amountCommitted Float
     status          CommitmentStatus @default(PENDING_REVIEW)
     documentsS3Url  String?
@@ -80,12 +111,12 @@ model Commitment {
     updatedAt       DateTime         @updatedAt
 
     // The round this commitment belongs to.
-    roundId Int
-    round   Round @relation(fields: [roundId], references: [id])
+    roundId String
+    round   Round  @relation(fields: [roundId], references: [id])
 
     // The investor user who made this commitment.
-    investorUserId Int
-    investor       User @relation("InvestorCommits", fields: [investorUserId], references: [id])
+    investorUserId String
+    investor       User   @relation("InvestorCommits", fields: [investorUserId], references: [id])
 
     // The audit trail for this commitment's status changes.
     statusLogs CommitmentStatusLog[]
@@ -95,18 +126,18 @@ model Commitment {
 
 /// The audit trail. An immutable log of every status change for a commitment.
 model CommitmentStatusLog {
-    id        Int              @id @default(autoincrement())
+    id        String           @id @default(uuid())
     oldStatus CommitmentStatus
     newStatus CommitmentStatus
     timestamp DateTime         @default(now())
 
     // The commitment that was changed.
-    commitmentId Int
+    commitmentId String
     commitment   Commitment @relation(fields: [commitmentId], references: [id])
 
     // The admin user who made the change.
-    changedByUserId Int
-    changedBy       User @relation("AdminChanges", fields: [changedByUserId], references: [id])
+    changedByUserId String
+    changedBy       User   @relation("AdminChanges", fields: [changedByUserId], references: [id])
 
     @@map("commitment_status_logs")
 }
