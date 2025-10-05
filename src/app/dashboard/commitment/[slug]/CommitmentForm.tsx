@@ -14,8 +14,8 @@ export default function CommitmentForm({
 }) {
     const [amount, setAmount] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [isPending, startTransition] = useTransition();
-    const router = useRouter();
+    const [isPending] = useTransition();
+    const { refresh } = useRouter();
 
     async function handleSubmit(formData: FormData) {
         setError(null);
@@ -26,7 +26,7 @@ export default function CommitmentForm({
         }
         try {
             await createCommitment(roundId, userId, amt);
-            router.refresh();
+            refresh();
         } catch (err: unknown) {
             if (err instanceof Error) {
                 // Show a friendlier message for min/max errors

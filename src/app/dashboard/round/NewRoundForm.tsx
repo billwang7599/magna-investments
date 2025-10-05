@@ -2,15 +2,19 @@ import React, { useState, useTransition } from "react";
 import Card from "@/components/Card";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { Currency } from "@/generated/prisma";
+import { Currency, Round } from "@/generated/prisma";
 import { useRouter } from "next/navigation";
 import { createRound } from "@/lib/actions/round";
 
 type NewRoundFormProps = {
     userId: string;
+    onRoundCreated?: (round: Round) => void;
 };
 
-const NewRoundForm: React.FC<NewRoundFormProps> = ({ userId }) => {
+const NewRoundForm: React.FC<NewRoundFormProps> = ({
+    userId,
+    onRoundCreated,
+}) => {
     const [name, setName] = useState("");
     const [targetAmount, setTargetAmount] = useState<number | "">("");
     const [minContributionAmount, setMinContributionAmount] = useState<
@@ -43,7 +47,7 @@ const NewRoundForm: React.FC<NewRoundFormProps> = ({ userId }) => {
 
         startTransition(async () => {
             try {
-                await createRound(
+                const newRound = await createRound(
                     name.trim(),
                     Number(targetAmount),
                     userId,
@@ -56,7 +60,7 @@ const NewRoundForm: React.FC<NewRoundFormProps> = ({ userId }) => {
                 setMinContributionAmount("");
                 setMaxContributionAmount("");
                 setCurrency(Currency.USDC);
-                router.refresh();
+                if (onRoundCreated) onRoundCreated(newRound);
             } catch {
                 setError("Failed to create round. Please try again.");
             }

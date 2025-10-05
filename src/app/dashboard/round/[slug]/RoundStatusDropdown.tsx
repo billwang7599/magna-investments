@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { $Enums } from "@/generated/prisma";
 import { setRoundStatus } from "@/lib/actions/round";
@@ -8,30 +7,33 @@ import { setRoundStatus } from "@/lib/actions/round";
 type Props = {
     roundId: string;
     initialStatus: $Enums.RoundStatus;
-    // onSave?: (newStatus: $Enums.RoundStatus) => Promise<void>;
+    onStatusChangeAction?: (newStatus: $Enums.RoundStatus) => void;
 };
 
-export default function RoundStatusDropdown({ roundId, initialStatus }: Props) {
+export default function RoundStatusDropdown({
+    roundId,
+    initialStatus,
+    onStatusChangeAction,
+}: Props) {
     const [status, setStatus] = useState<$Enums.RoundStatus>(initialStatus);
-    const [saving, setSaving] = useState(false);
-    const router = useRouter();
-
-    const hasChanged = status !== initialStatus;
+    const [dirty, setDirty] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setStatus(e.target.value as $Enums.RoundStatus);
+        setDirty(true);
+        setError(null);
     };
 
     const handleSave = async () => {
-        setSaving(true);
+        setError(null);
+        setDirty(false);
         try {
+            if (onStatusChangeAction) onStatusChangeAction(status);
             await setRoundStatus(roundId, status);
-            // Revalidate/reload the page after saving
-            router.refresh();
         } catch {
-            // Optionally handle error
-        } finally {
-            setSaving(false);
+            setError("Failed to update status.");
+            setDirty(true); // Re-show button if error
         }
     };
 
@@ -41,7 +43,6 @@ export default function RoundStatusDropdown({ roundId, initialStatus }: Props) {
                 value={status}
                 onChange={handleChange}
                 className="border border-border rounded px-2 py-1"
-                disabled={saving}
             >
                 {Object.values($Enums.RoundStatus).map((s) => (
                     <option key={s} value={s}>
@@ -49,17 +50,17 @@ export default function RoundStatusDropdown({ roundId, initialStatus }: Props) {
                     </option>
                 ))}
             </select>
-            {hasChanged && (
+            {dirty && (
                 <Button
                     type="button"
                     variant="secondary"
                     className="px-3 py-1 text-xs"
                     onClick={handleSave}
-                    disabled={saving}
                 >
-                    {saving ? "Saving..." : "Save Changes"}
+                    Save Changes
                 </Button>
             )}
+            {error && <span className="text-xs text-red-500">{error}</span>}
         </div>
     );
 }

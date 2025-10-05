@@ -9,6 +9,7 @@ import { getRoundById } from "@/lib/actions/round";
 import { getInvitesByRound } from "@/lib/actions/invites";
 import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
 import { getAllDownloadUrls } from "@/lib/actions/file";
+import PublicToggle from "./PublicToggle";
 
 type Props = {
     params: { slug: string };
@@ -78,6 +79,12 @@ export default async function RoundDetailsPage({ params }: Props) {
                             <h2 className="text-2xl font-bold text-primary mb-1">
                                 {round.name}
                             </h2>
+                            <div className="mt-2 mb-2">
+                                <PublicToggle
+                                    roundId={round.id}
+                                    initialPublic={round.public}
+                                />
+                            </div>
                             <div className="text-ui text-text-secondary mb-1">
                                 Target Amount
                             </div>

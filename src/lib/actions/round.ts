@@ -45,3 +45,19 @@ export async function getRoundsByFounder(userId: string) {
     });
     return rounds as Round[];
 }
+
+export async function getPublicRounds() {
+    const rounds = await prisma.round.findMany({
+        where: { public: true },
+        orderBy: { createdAt: "desc" },
+    });
+    return rounds as Round[];
+}
+
+export async function setRoundPublic(id: string, isPublic: boolean) {
+    const round = await prisma.round.update({
+        where: { id },
+        data: { public: isPublic },
+    });
+    return round as Round;
+}

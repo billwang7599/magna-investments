@@ -17,7 +17,7 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gradient-to-br from-fuchsia-900/70 to-violet-900/90">
             <Card title="My Profile" className="max-w-md w-full">
                 <div className="flex flex-col items-center mb-4">
                     <div className="bg-primary/10 rounded-full p-4 mb-2">
@@ -40,7 +40,7 @@ export default async function Page() {
                     </h2>
                 </div>
                 <Form userId={data.user.id} userEmail={data.user.email!} />
-                <p className="mt-4 text-gray-600 text-center">
+                <p className="mt-4 text-tertiary text-center">
                     Welcome, {data.user.email}!
                 </p>
             </Card>

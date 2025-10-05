@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Card from "@/components/Card";
 import RoundList from "@/app/dashboard/round/RoundList";
 import NewRoundForm from "@/app/dashboard/round/NewRoundForm";
 import { getRoundsByFounder } from "@/lib/actions/round";
@@ -24,7 +23,10 @@ export default function FounderDash({ userId }: { userId: string }) {
         fetchRounds();
     }, [userId]);
 
-    // Removed handleCreateRound; logic now handled inside NewRoundForm
+    const handleRoundCreated = (newRound: Round) => {
+        setShowForm(false);
+        setRounds((prev) => [newRound, ...prev]);
+    };
 
     return (
         <div className="flex flex-col gap-8">
@@ -44,7 +46,10 @@ export default function FounderDash({ userId }: { userId: string }) {
                 </div>
                 {showForm && (
                     <div className="mb-6">
-                        <NewRoundForm userId={userId} />
+                        <NewRoundForm
+                            userId={userId}
+                            onRoundCreated={handleRoundCreated}
+                        />
                     </div>
                 )}
                 <div>

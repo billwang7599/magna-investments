@@ -8,7 +8,7 @@ import {
     updateInviteStatus,
 } from "@/lib/actions/invites";
 import { getCommitmentsByInvestorId } from "@/lib/actions/commitment";
-import { getRoundById } from "@/lib/actions/round";
+import { getRoundById, getPublicRounds } from "@/lib/actions/round";
 import { Invite, Commitment, InviteStatus, Round } from "@/generated/prisma";
 
 export default function InvestorDash({
@@ -22,6 +22,8 @@ export default function InvestorDash({
         (Invite & { round: Round | null; commitment: Commitment | null })[]
     >([]);
     const [loading, setLoading] = useState(true);
+    const [publicRounds, setPublicRounds] = useState<Round[]>([]);
+    const [commitments, setCommitments] = useState<Commitment[]>([]);
 
     useEffect(() => {
         async function fetchData() {
@@ -32,16 +34,23 @@ export default function InvestorDash({
             const rounds = await Promise.all(
                 invitesRes.map((invite) => getRoundById(invite.roundId)),
             );
-            // Fetch commitments for this user for each round
-            const commitments = await getCommitmentsByInvestorId(userId);
+            // Fetch all commitments for this user
+            const commitmentsRes = await getCommitmentsByInvestorId(userId);
+            setCommitments(commitmentsRes);
             setInvites(
                 invitesRes.map((invite, i) => ({
                     ...invite,
                     round: rounds[i],
                     commitment:
-                        commitments.find((c) => c.roundId === invite.roundId) ||
-                        null,
+                        commitmentsRes.find(
+                            (c) => c.roundId === invite.roundId,
+                        ) || null,
                 })),
+            );
+            // Fetch all public rounds, but exclude those owned by this user
+            const publicRoundsRes = await getPublicRounds();
+            setPublicRounds(
+                publicRoundsRes.filter((r) => r.companyUserId !== userId),
             );
             setLoading(false);
         }
@@ -169,6 +178,69 @@ export default function InvestorDash({
                                 </div>
                             </li>
                         ))}
+                    </ul>
+                )}
+            </Card>
+            <Card title="All Public Rounds">
+                {loading ? (
+                    <div className="text-text-secondary text-center py-4">
+                        Loading public rounds...
+                    </div>
+                ) : publicRounds.length === 0 ? (
+                    <div className="text-text-secondary text-center py-4">
+                        No public rounds available.
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-3">
+                        {publicRounds.map((round) => {
+                            // Check if the user has a commitment for this round (from all commitments, not just invites)
+                            const userCommitment = commitments.find(
+                                (commitment) => commitment.roundId === round.id,
+                            );
+                            return (
+                                <li
+                                    key={round.id}
+                                    className="border-b border-border pb-2"
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+                                        <div className="md:col-span-4 col-span-12 font-semibold text-gray-400">
+                                            Round:{" "}
+                                            <span className="text-gray-50">
+                                                {round.name}
+                                            </span>
+                                        </div>
+                                        <div className="md:col-span-4 col-span-12 flex flex-wrap gap-2 justify-start md:justify-center">
+                                            {userCommitment ? (
+                                                <Link
+                                                    href={`/dashboard/commitment/${round.id}`}
+                                                    className="text-accent underline hover:text-fuchsia-400 transition-colors"
+                                                >
+                                                    Go to Commitment Page
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={`/dashboard/commitment/${round.id}`}
+                                                    className="text-accent underline hover:text-fuchsia-400 transition-colors"
+                                                >
+                                                    Contribute
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <div className="md:col-span-4 col-span-12 flex flex-col md:items-end items-start">
+                                            <div className="text-sm text-gray-400">
+                                                Target:{" "}
+                                                <span className="font-semibold text-gray-50">
+                                                    {round.targetAmount}
+                                                </span>
+                                                <span className="ml-2 text-xs px-2 py-1 rounded bg-white/10 border border-border text-gray-50">
+                                                    {round.currency}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </Card>

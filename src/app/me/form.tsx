@@ -29,47 +29,49 @@ export default function ProfileForm({ userId, userEmail }: FormProps) {
     }
 
     return (
-        <Form onSubmit={submitForm} className="space-y-6 px-2 py-2">
+        <Form
+            onSubmit={submitForm}
+            className="flex flex-col gap-6 bg-surface rounded-lg border border-border p-6"
+        >
             <input type="hidden" name="userId" value={userId} />
             <input type="hidden" name="userEmail" value={userEmail} />
+            <Input
+                id="name"
+                name="name"
+                type="text"
+                label="Name"
+                required
+                className="w-full"
+                placeholder="Your name"
+            />
             <div>
-                <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    label="Name"
-                    required
-                    className="w-full"
-                />
-            </div>
-            <div>
-                <span className="block mb-2 font-medium text-text-secondary">
+                <span className="block mb-2 text-sm font-medium text-tertiary">
                     Are you a:
                 </span>
-                <div className="flex gap-6">
-                    <label className="flex items-center gap-2 text-text-secondary font-ui text-ui bg-gray-50 px-3 py-2 rounded shadow-sm hover:bg-gray-100 transition">
+                <div className="flex gap-4">
+                    <label className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-lg px-4 py-2 shadow-sm hover:bg-fuchsia-500/10 hover:border-fuchsia-500 transition-all cursor-pointer">
                         <input
                             type="radio"
                             name="role"
                             value="founder"
                             required
-                            className="accent-primary"
+                            className="accent-fuchsia-500"
                         />
-                        Founder
+                        <span className="text-white font-medium">Founder</span>
                     </label>
-                    <label className="flex items-center gap-2 text-text-secondary font-ui text-ui bg-gray-50 px-3 py-2 rounded shadow-sm hover:bg-gray-100 transition">
+                    <label className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-lg px-4 py-2 shadow-sm hover:bg-fuchsia-500/10 hover:border-fuchsia-500 transition-all cursor-pointer">
                         <input
                             type="radio"
                             name="role"
                             value="investor"
                             required
-                            className="accent-primary"
+                            className="accent-fuchsia-500"
                         />
-                        Investor
+                        <span className="text-white font-medium">Investor</span>
                     </label>
                 </div>
             </div>
-            <Button type="submit" className="w-full mt-2">
+            <Button type="submit" variant="primary" className="w-full mt-2">
                 Submit
             </Button>
         </Form>
