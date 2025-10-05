@@ -1,5 +1,5 @@
 import React from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Card from "@/components/Card";
 import InviteForm from "./InviteForm";
@@ -24,7 +24,7 @@ export default async function RoundDetailsPage({ params }: Props) {
 
     if (!user) {
         // Not logged in
-        notFound();
+        redirect("/auth/login");
     }
 
     const roundId = params.slug;

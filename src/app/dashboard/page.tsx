@@ -13,10 +13,12 @@ export default function Dashboard() {
     const { role, setRole } = useRoleStore();
 
     useEffect(() => {
-        supabase.auth.getUser().then((userResponse) => {
+        async function fetchUser() {
+            const userResponse = await supabase.auth.getUser();
             setUserId(userResponse?.data?.user?.id ?? null);
             setUserEmail(userResponse?.data?.user?.email ?? null);
-        });
+        }
+        fetchUser();
     }, [supabase.auth]);
 
     const switchRole = () => {

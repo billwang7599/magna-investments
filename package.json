@@ -6,6 +6,7 @@
         "dev": "next dev --turbopack",
         "build": "next build --turbopack",
         "start": "next start",
+        "prestart": "npx prisma generate",
         "lint": "eslint",
         "postinstall": "npx prisma generate && npx prisma db push"
     },

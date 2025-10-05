@@ -48,12 +48,12 @@ export default async function Layout({
                     </Link>
                 </nav>
                 <div className="mt-auto pt-8 border-t border-border">
-                    <Link
+                    <a
                         href="/auth/logout"
                         className="text-text-secondary hover:text-primary font-ui text-ui transition-colors"
                     >
                         Logout
-                    </Link>
+                    </a>
                 </div>
             </aside>
             {/* Main Content */}
