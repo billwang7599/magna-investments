@@ -1,5 +1,6 @@
 import React from "react";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Card from "@/components/Card";
 import InviteForm from "./InviteForm";
@@ -72,6 +73,12 @@ export default async function RoundDetailsPage({ params }: Props) {
 
     return (
         <div className="max-w-3xl mx-auto py-10 flex flex-col gap-10">
+            <Link
+                href="/dashboard"
+                className="mb-4 inline-block text-accent underline font-medium hover:text-accent-dark transition-colors"
+            >
+                ← Back to Dashboard
+            </Link>
             <Card>
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

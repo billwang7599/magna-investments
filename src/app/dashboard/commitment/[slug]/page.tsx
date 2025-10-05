@@ -8,6 +8,7 @@ import FileDrop from "@/components/FileDrop";
 import Card from "@/components/Card";
 import { getAllDownloadUrls } from "@/lib/actions/file";
 import React from "react";
+import Link from "next/link";
 
 type Props = {
     params: { slug: string };
@@ -44,6 +45,12 @@ export default async function CommitmentPage({ params }: Props) {
 
     return (
         <div className="max-w-2xl mx-auto py-8 flex flex-col gap-8">
+            <Link
+                href="/dashboard"
+                className="mb-4 inline-block text-accent underline font-medium hover:text-accent-dark transition-colors"
+            >
+                ← Back to Dashboard
+            </Link>
             <Card title={`Round: ${round.name}`}>
                 <div className="mb-4">
                     <div className="text-ui text-text-secondary mb-1">
