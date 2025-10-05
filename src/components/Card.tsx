@@ -18,19 +18,23 @@ const Card: React.FC<CardProps> = ({
     return (
         <div
             className={clsx(
-                "bg-gradient-radial from-surface-100 via-surface-200 to-background border-2 border-accent rounded-2xl p-6 shadow-lg",
+                // Glassmorphism: semi-transparent, backdrop blur, glowing border, subtle shadow
+                "bg-white/10 backdrop-blur-lg border border-white/10 rounded-lg p-8 shadow-lg shadow-fuchsia-500/10 transition-all duration-200",
+                "hover:shadow-2xl hover:border-fuchsia-500",
                 className,
             )}
             {...props}
         >
             {title && (
-                <div className="mb-4 text-2xl font-bold text-brand">
+                <div className="mb-4 text-2xl font-extrabold tracking-tight text-gray-50">
                     {title}
                 </div>
             )}
-            <div>{children}</div>
+            <div className="text-gray-50">{children}</div>
             {footer && (
-                <div className="pt-4 border-t border-accent">{footer}</div>
+                <div className="pt-4 border-t border-white/10 text-gray-400">
+                    {footer}
+                </div>
             )}
         </div>
     );

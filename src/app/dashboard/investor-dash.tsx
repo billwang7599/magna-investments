@@ -8,7 +8,7 @@ import {
     updateInviteStatus,
 } from "@/lib/actions/invites";
 import { getCommitmentsByInvestorId } from "@/lib/actions/commitment";
-import { getRound } from "@/lib/actions/round";
+import { getRoundById } from "@/lib/actions/round";
 import { Invite, Commitment, InviteStatus, Round } from "@/generated/prisma";
 
 export default function InvestorDash({
@@ -30,7 +30,7 @@ export default function InvestorDash({
             const invitesRes = await getInvitesByUserEmail(userEmail);
             // Fetch round info for each invite
             const rounds = await Promise.all(
-                invitesRes.map((invite) => getRound(invite.roundId)),
+                invitesRes.map((invite) => getRoundById(invite.roundId)),
             );
             // Fetch commitments for this user for each round
             const commitments = await getCommitmentsByInvestorId(userId);
@@ -65,10 +65,10 @@ export default function InvestorDash({
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <h2 className="text-h2 font-heading font-bold text-text-primary mb-2">
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-50 mb-2">
                     Investor Dashboard
                 </h2>
-                <p className="text-ui font-ui text-text-secondary mb-6">
+                <p className="text-base font-sans text-gray-400 mb-6">
                     Welcome to your investor dashboard. Here you can view and
                     manage your investments.
                 </p>
@@ -91,12 +91,14 @@ export default function InvestorDash({
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
                                     {/* Round Name */}
-                                    <div className="md:col-span-4 col-span-12 font-medium text-text-primary">
+                                    <div className="md:col-span-4 col-span-12 font-semibold text-gray-400">
                                         Round:{" "}
                                         {invite.round ? (
-                                            <span>{invite.round.name}</span>
+                                            <span className="text-gray-50">
+                                                {invite.round.name}
+                                            </span>
                                         ) : (
-                                            <span className="text-text-secondary">
+                                            <span className="text-gray-400">
                                                 Unknown
                                             </span>
                                         )}
@@ -137,7 +139,7 @@ export default function InvestorDash({
                                             invite.round && (
                                                 <Link
                                                     href={`/dashboard/commitment/${invite.round.id}`}
-                                                    className="text-primary underline"
+                                                    className="text-accent underline hover:text-fuchsia-400 transition-colors"
                                                 >
                                                     Go to Commitment Page
                                                 </Link>
@@ -146,20 +148,20 @@ export default function InvestorDash({
                                     {/* Contribution */}
                                     <div className="md:col-span-4 col-span-12 flex flex-col md:items-end items-start">
                                         {invite.commitment ? (
-                                            <div className="text-sm text-text-primary">
+                                            <div className="text-sm text-gray-400">
                                                 Contribution:{" "}
-                                                <span className="font-semibold">
+                                                <span className="font-semibold text-gray-50">
                                                     {
                                                         invite.commitment
                                                             .amountCommitted
                                                     }
                                                 </span>
-                                                <span className="ml-2 text-xs px-2 py-1 rounded bg-gray-100 border border-border text-black">
+                                                <span className="ml-2 text-xs px-2 py-1 rounded bg-white/10 border border-border text-gray-50">
                                                     {invite.commitment.status}
                                                 </span>
                                             </div>
                                         ) : (
-                                            <div className="text-sm text-text-secondary">
+                                            <div className="text-sm text-gray-400">
                                                 No contribution yet.
                                             </div>
                                         )}

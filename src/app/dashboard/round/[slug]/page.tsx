@@ -5,9 +5,10 @@ import Card from "@/components/Card";
 import InviteForm from "./InviteForm";
 import ContributorsTable from "./ContributorsTable";
 import RoundStatusSection from "./RoundStatusSection";
-import { getRound } from "@/lib/actions/round";
+import { getRoundById } from "@/lib/actions/round";
 import { getInvitesByRound } from "@/lib/actions/invites";
 import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
+import { getAllDownloadUrls } from "@/lib/actions/file";
 
 type Props = {
     params: { slug: string };
@@ -27,7 +28,7 @@ export default async function RoundDetailsPage({ params }: Props) {
     }
 
     const roundId = params.slug;
-    const round = await getRound(roundId);
+    const round = await getRoundById(roundId);
 
     if (!round) {
         notFound();
@@ -41,6 +42,17 @@ export default async function RoundDetailsPage({ params }: Props) {
     // --- Round status is now handled in a separate server component (RoundStatusSection) ---
 
     const commitments = await getCommitmentsByRoundId(roundId);
+
+    // Fetch files for each commitment
+    const filesByCommitment = await Promise.all(
+        commitments.map(async (commitment) => {
+            const files = await getAllDownloadUrls("documents", commitment.id);
+            return {
+                commitment,
+                files,
+            };
+        }),
+    );
 
     // Calculate totals
     const fundedTotal = commitments
@@ -76,9 +88,6 @@ export default async function RoundDetailsPage({ params }: Props) {
                         </div>
                         <div className="flex flex-col gap-2 min-w-[220px]">
                             <div className="flex items-center gap-2">
-                                <span className="text-ui text-text-secondary">
-                                    Status:
-                                </span>
                                 <RoundStatusSection
                                     roundId={round.id}
                                     initialStatus={round.status}
@@ -177,7 +186,10 @@ export default async function RoundDetailsPage({ params }: Props) {
                 </div>
             </Card>
             <Card title="Contributors">
-                <ContributorsTable roundId={roundId} />
+                <ContributorsTable
+                    roundId={roundId}
+                    filesByCommitment={filesByCommitment}
+                />
             </Card>
         </div>
     );

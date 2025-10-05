@@ -2,13 +2,18 @@
 import React, { useState, useTransition } from "react";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { submitCommitmentAction } from "./commitmentActions";
 import { useRouter } from "next/navigation";
+import { createCommitment } from "@/lib/actions/commitment";
 
-export default function CommitmentForm({ roundId }: { roundId: string }) {
+export default function CommitmentForm({
+    roundId,
+    userId,
+}: {
+    roundId: string;
+    userId: string;
+}) {
     const [amount, setAmount] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
 
@@ -20,7 +25,7 @@ export default function CommitmentForm({ roundId }: { roundId: string }) {
             return;
         }
         try {
-            await submitCommitmentAction(roundId, amt);
+            await createCommitment(roundId, userId, amt);
             router.refresh();
         } catch (err: unknown) {
             if (err instanceof Error) {

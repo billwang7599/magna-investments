@@ -106,7 +106,6 @@ model Commitment {
     id              String           @id @default(uuid())
     amountCommitted Float
     status          CommitmentStatus @default(PENDING_REVIEW)
-    documentsS3Url  String?
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
 

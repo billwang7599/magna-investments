@@ -25,7 +25,7 @@ export default function Dashboard() {
 
     if (!userId || !userEmail) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh] text-text-secondary">
+            <div className="flex items-center justify-center min-h-[60vh] text-gray-400">
                 Loading...
             </div>
         );
@@ -37,10 +37,10 @@ export default function Dashboard() {
             <div className="max-w-5xl w-full mx-auto flex flex-col gap-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-h1 font-heading font-bold text-primary mb-2">
+                        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-50 mb-2">
                             Dashboard
                         </h1>
-                        <p className="text-ui font-ui text-text-secondary">
+                        <p className="text-base font-medium text-gray-400">
                             Welcome to your Magna dashboard. Manage your rounds
                             and investments here.
                         </p>

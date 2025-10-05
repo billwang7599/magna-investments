@@ -31,7 +31,7 @@ export default function FounderDash({ userId }: { userId: string }) {
             {/* "Your Rounds" Section */}
             <div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                    <h2 className="text-h2 font-heading font-bold text-text-primary">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-50">
                         Your Rounds
                     </h2>
                     <Button
@@ -43,13 +43,13 @@ export default function FounderDash({ userId }: { userId: string }) {
                     </Button>
                 </div>
                 {showForm && (
-                    <Card className="mb-6">
+                    <div className="mb-6">
                         <NewRoundForm userId={userId} />
-                    </Card>
+                    </div>
                 )}
-                <Card>
+                <div>
                     {loading ? (
-                        <div className="text-center text-text-secondary py-8">
+                        <div className="text-center text-gray-400 py-8">
                             Loading rounds...
                         </div>
                     ) : (
@@ -58,7 +58,7 @@ export default function FounderDash({ userId }: { userId: string }) {
                             emptyText="No rounds yet. Create your first round!"
                         />
                     )}
-                </Card>
+                </div>
             </div>
         </div>
     );

@@ -37,8 +37,13 @@ async function getCommitmentsAndUsers(roundId: string) {
 
 export default async function ContributorsTable({
     roundId,
+    filesByCommitment,
 }: {
     roundId: string;
+    filesByCommitment: {
+        commitment: Commitment;
+        files: { fileName: string; signedUrl: string | null }[];
+    }[];
 }) {
     const { commitments, users } = await getCommitmentsAndUsers(roundId);
 
@@ -50,5 +55,19 @@ export default async function ContributorsTable({
         );
     }
 
-    return <Contributers initialCommitments={commitments} userMap={users} />;
+    // Map files to commitments
+    const filesMap = Object.fromEntries(
+        filesByCommitment.map(({ commitment, files }) => [
+            commitment.id,
+            files,
+        ]),
+    );
+
+    return (
+        <Contributers
+            initialCommitments={commitments}
+            userMap={users}
+            filesMap={filesMap}
+        />
+    );
 }

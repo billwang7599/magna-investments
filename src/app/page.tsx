@@ -9,7 +9,7 @@ export default function Page() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-background px-4">
             <Card className="w-full max-w-md flex flex-col items-center gap-6 py-12">
-                <h1 className="text-h1 font-heading font-bold text-primary mb-2 text-center">
+                <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-50 mb-2 text-center">
                     Welcome to Magna Investments
                 </h1>
                 <p className="text-ui font-ui text-text-secondary text-center mb-6">

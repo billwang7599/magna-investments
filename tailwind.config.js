@@ -3,34 +3,47 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                background: "#18192A", // deep blue-black, less harsh than pure black
-                "surface-100": "#23243A", // slightly lighter, with a hint of blue
-                "surface-200": "#2E3050", // even lighter, for cards/containers
-                brand: {
-                    DEFAULT: "#C64EFF",
-                    light: "#D47AFF",
-                    dark: "#A93ADF",
-                },
+                // Backgrounds
+                background: "#F3F4F6",
+                surface: "#FFFFFF",
+
+                // Text
+                "text-primary": "#F9FAFB", // Tailwind text-gray-50
+                "text-secondary": "#D1D5DB", // Tailwind text-gray-300
+                "text-tertiary": "#9CA3AF", // Tailwind text-gray-400
+
+                // Accent
                 accent: {
-                    DEFAULT: "#4EFFF8", // teal/cyan accent for vibrancy
-                    light: "#7AFFF9",
-                    dark: "#3ADFD6",
+                    DEFAULT: "#4F46E5", // Tailwind indigo-600
+                    hover: "#6366F1", // Tailwind indigo-500
                 },
-                content: {
-                    primary: "#FFFFFF",
-                    secondary: "#E0E0E0",
-                    tertiary: "#A0A0A0",
-                },
-                border: "#3A3B5A", // blue-tinted border
-                success: "#00C48C",
-                warning: "#FFD600",
-                error: "#FF4E4E",
-                info: "#4E8FFF",
+
+                // Status
+                success: "#22C55E", // Tailwind green-500
+                info: "#3B82F6", // Tailwind blue-500
+                warning: "#F59E42", // Tailwind orange-400
+                error: "#EF4444", // Tailwind red-500
+
+                // Border
+                border: "#374151", // Tailwind border-gray-700
             },
-            backgroundImage: {
-                "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-                "gradient-brand":
-                    "linear-gradient(90deg, #C64EFF 0%, #4EFFF8 100%)",
+            fontSize: {
+                "2xl": ["1.5rem", { lineHeight: "2rem", fontWeight: "700" }], // Page Titles
+                lg: ["1.125rem", { lineHeight: "1.75rem", fontWeight: "600" }], // Card Titles
+                "3xl": [
+                    "1.875rem",
+                    { lineHeight: "2.25rem", fontWeight: "700" },
+                ], // Key Data Points
+                sm: ["0.875rem", { lineHeight: "1.25rem", fontWeight: "400" }], // Labels
+                xs: ["0.75rem", { lineHeight: "1rem", fontWeight: "600" }], // Badges
+            },
+            borderRadius: {
+                lg: "0.75rem", // 12px for softer corners
+                full: "9999px", // For badges
+            },
+            spacing: {
+                6: "1.5rem",
+                8: "2rem",
             },
         },
     },

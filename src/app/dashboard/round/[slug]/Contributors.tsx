@@ -20,12 +20,17 @@ type User = {
 type Props = {
     initialCommitments: Commitment[];
     userMap: Record<string, User>;
+    filesMap: Record<string, { fileName: string; signedUrl: string | null }[]>;
 };
 
 import { useRouter } from "next/navigation";
 import { updateCommitmentStatus } from "@/lib/actions/commitment";
 
-export default function Contributers({ initialCommitments, userMap }: Props) {
+export default function Contributers({
+    initialCommitments,
+    userMap,
+    filesMap,
+}: Props) {
     const [statuses, setStatuses] = useState<
         Record<string, $Enums.CommitmentStatus>
     >(() =>
@@ -73,6 +78,10 @@ export default function Contributers({ initialCommitments, userMap }: Props) {
         }
     };
 
+    function truncate(str: string, n: number) {
+        return str.length > n ? str.slice(0, n - 1) + "…" : str;
+    }
+
     const columns = [
         {
             header: "Contributor",
@@ -87,6 +96,25 @@ export default function Contributers({ initialCommitments, userMap }: Props) {
         {
             header: "Amount",
             render: (c: Commitment) => c.amountCommitted.toLocaleString(),
+        },
+        {
+            header: "Files",
+            render: (c: Commitment) => (
+                <div className="flex flex-col gap-1">
+                    {(filesMap?.[c.id] || []).map((file) => (
+                        <a
+                            key={file.fileName}
+                            href={file.signedUrl || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent underline block max-w-[120px] truncate"
+                            title={file.fileName}
+                        >
+                            {truncate(file.fileName, 18)}
+                        </a>
+                    ))}
+                </div>
+            ),
         },
         {
             header: "Status",

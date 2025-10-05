@@ -25,8 +25,35 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-content-secondary`}
+                className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-content-secondary relative min-h-screen overflow-hidden`}
+                style={{
+                    minHeight: "100vh",
+                }}
             >
+                {/* Atmospheric Radial Gradient Background */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none fixed inset-0 -z-10"
+                    style={{
+                        background:
+                            "radial-gradient(ellipse at 50% 0%, #0D0C14 0%, #191429 100%)",
+                        width: "100vw",
+                        height: "100vh",
+                    }}
+                />
+                {/* Glowing Arc at Bottom */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-[-120px] -z-10"
+                    style={{
+                        width: "120vw",
+                        height: "320px",
+                        background:
+                            "linear-gradient(90deg, transparent 0%, rgba(217,70,239,0.3) 50%, transparent 100%)",
+                        filter: "blur(100px)",
+                        borderRadius: "50% 50% 100% 100% / 0% 0% 100% 100%",
+                    }}
+                />
                 {children}
             </body>
         </html>

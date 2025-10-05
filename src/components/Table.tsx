@@ -29,10 +29,10 @@ export function Table<T>({
 }: TableProps<T>) {
     return (
         <div className={clsx("overflow-x-auto", className)}>
-            <table className="min-w-full border border-border rounded-md">
+            <table className="min-w-full bg-surface border border-border rounded-lg">
                 <thead
                     className={clsx(
-                        "bg-surface-200 text-content-primary",
+                        "bg-surface text-primary sticky top-0 z-10 transition-colors duration-200",
                         headerClassName,
                     )}
                 >
@@ -41,7 +41,8 @@ export function Table<T>({
                             <th
                                 key={idx}
                                 className={clsx(
-                                    "px-4 py-2 text-left font-semibold",
+                                    "px-6 py-4 text-left font-semibold text-secondary text-sm border-b border-border",
+                                    "transition-colors duration-200",
                                     col.className,
                                 )}
                             >
@@ -50,12 +51,14 @@ export function Table<T>({
                         ))}
                     </tr>
                 </thead>
-                <tbody className={bodyClassName}>
+                <tbody
+                    className={clsx("divide-y divide-border", bodyClassName)}
+                >
                     {data.length === 0 ? (
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                className="text-center text-content-secondary py-8 bg-surface-100"
+                                className="text-center text-tertiary py-8 bg-surface"
                             >
                                 {emptyText}
                             </td>
@@ -64,13 +67,13 @@ export function Table<T>({
                         data.map((row, rowIndex) => (
                             <tr
                                 key={rowKey ? rowKey(row, rowIndex) : rowIndex}
-                                className="border-t border-border bg-surface-100 even:bg-surface-200"
+                                className="bg-surface even:bg-background transition-colors duration-200 hover:bg-accent/5 cursor-pointer"
                             >
                                 {columns.map((col, colIdx) => (
                                     <td
                                         key={colIdx}
                                         className={clsx(
-                                            "px-4 py-2 text-content-primary",
+                                            "px-6 py-4 text-primary align-middle transition-colors duration-200",
                                             col.className,
                                         )}
                                     >

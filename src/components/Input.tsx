@@ -26,7 +26,7 @@ export const Input: React.FC<InputProps> = ({
                 <label
                     htmlFor={inputId}
                     className={clsx(
-                        "text-content-tertiary font-medium mb-1",
+                        "text-tertiary text-sm font-medium mb-1",
                         labelClassName,
                     )}
                 >
@@ -36,9 +36,9 @@ export const Input: React.FC<InputProps> = ({
             <input
                 id={inputId}
                 className={clsx(
-                    "bg-surface-100 border border-accent text-content-primary rounded-md px-4 py-2 transition-colors duration-150 outline-none shadow-sm",
-                    "focus:border-accent focus:ring-2 focus:ring-accent placeholder-content-tertiary",
-                    "hover:bg-gradient-brand/10",
+                    "bg-surface border border-border text-primary rounded-lg px-4 py-2 transition-all duration-200 outline-none shadow-sm",
+                    "focus:border-accent focus:ring-2 focus:ring-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.15)]",
+                    "hover:bg-accent/10 hover:border-accent/70 placeholder-tertiary",
                     className,
                 )}
                 {...props}

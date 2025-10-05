@@ -31,7 +31,7 @@ export async function setRoundStatus(id: string, status: RoundStatus) {
     return round as Round;
 }
 
-export async function getRound(id: string) {
+export async function getRoundById(id: string) {
     const round = await prisma.round.findUnique({
         where: { id },
     });
