@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stack Choices & Decision-Making Process
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This project leverages a modern, productivity-focused stack to accelerate development, ensure maintainability, and enable rapid iteration. Below is a summary of the key technologies and tools used, along with the rationale behind each choice.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### AI Tooling
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **GPT (OpenAI) with Zed IDE**
+  Used for code generation, architectural brainstorming, and rapid prototyping. GPT's integration with Zed IDE enabled context-aware suggestions and code completion, significantly speeding up development and reducing boilerplate.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Gemini**
+  Utilized for documentation assistance and for breaking down complex code and architectural decisions. Gemini helped ensure that documentation is clear, concise, and accessible to both technical and non-technical stakeholders.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Backend
 
-## Learn More
+- **Prisma ORM**
+  Chosen for its type safety, developer experience, and seamless integration with modern TypeScript/JavaScript stacks. Prisma simplifies database migrations and querying, reducing the risk of runtime errors.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Supabase (PostgreSQL)**
+  Acts as the managed database layer. Supabase provides a scalable, secure, and developer-friendly Postgres environment, allowing us to focus on application logic rather than database operations.
