@@ -1,3 +1,4 @@
+https://magna.billwang.dev/
 # Stack Choices & Decision-Making Process
 
 ## Overview
