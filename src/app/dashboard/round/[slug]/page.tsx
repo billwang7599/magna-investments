@@ -37,10 +37,12 @@ export default async function RoundDetailsPage({
         notFound();
     }
 
-    // Only allow access if the current user is the creator (owner)
+    // Only allow access if the current user is the creator
     if (round.companyUserId !== user.id) {
         notFound();
     }
+
+    // --- Round status is now handled in a separate server component (RoundStatusSection) ---
 
     const commitments = await getCommitmentsByRoundId(roundId);
 

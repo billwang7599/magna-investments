@@ -1,10 +1,7 @@
 "use server";
 import { notFound } from "next/navigation";
 import { getRoundById } from "@/lib/actions/round";
-import {
-    getCommitmentsByRoundId,
-    createCommitment,
-} from "@/lib/actions/commitment";
+import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
 import { createClient } from "@/lib/supabase/server";
 import CommitmentForm from "./CommitmentForm";
 import FileDrop from "@/components/FileDrop";
@@ -31,20 +28,20 @@ export default async function CommitmentPage({
     const roundId = params.slug;
     const round = await getRoundById(roundId);
 
-    // Fetch all commitments for this round, filter for this user
-    const commitments = await getCommitmentsByRoundId(roundId);
-    let userCommitment = commitments.find((c) => c.investorUserId === user.id);
-
-    if (!userCommitment) {
-        // Auto-create a commitment for the user with the round's minContributionAmount
-        userCommitment = await createCommitment(
-            roundId,
-            user.id,
-            round.minContributionAmount,
-        );
+    if (!round) {
+        notFound();
     }
 
-    const fileList = await getAllDownloadUrls("documents", userCommitment.id);
+    // Fetch all commitments for this round, filter for this user
+    const commitments = await getCommitmentsByRoundId(roundId);
+    const userCommitment = commitments.find(
+        (c) => c.investorUserId === user.id,
+    );
+
+    let fileList: { fileName: string; signedUrl: string | null }[] = [];
+    if (userCommitment) {
+        fileList = await getAllDownloadUrls("documents", userCommitment.id);
+    }
 
     return (
         <div className="max-w-2xl mx-auto py-8 flex flex-col gap-8">
@@ -99,29 +96,34 @@ export default async function CommitmentPage({
                 </div>
             </Card>
             <Card title="Your Commitment">
-                <div className="space-y-4">
-                    <div>
-                        <span className="text-ui text-text-secondary">
-                            Amount Committed:{" "}
-                        </span>
-                        <span className="font-bold">
-                            {round.currency}{" "}
-                            {userCommitment.amountCommitted.toLocaleString()}
-                        </span>
+                {userCommitment ? (
+                    <div className="space-y-4">
+                        <div>
+                            <span className="text-ui text-text-secondary">
+                                Amount Committed:{" "}
+                            </span>
+                            <span className="font-bold">
+                                {round.currency}{" "}
+                                {userCommitment.amountCommitted.toLocaleString()}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="text-ui text-text-secondary">
+                                Status:{" "}
+                            </span>
+                            <span className="font-medium">
+                                {userCommitment.status}
+                            </span>
+                        </div>
+                        <FileDrop
+                            bucket="documents"
+                            commitmentId={userCommitment.id}
+                        />
                     </div>
-                    <div>
-                        <span className="text-ui text-text-secondary">
-                            Status:{" "}
-                        </span>
-                        <span className="font-medium">
-                            {userCommitment.status}
-                        </span>
-                    </div>
-                    <FileDrop
-                        bucket="documents"
-                        commitmentId={userCommitment.id}
-                    />
-                </div>
+                ) : (
+                    // Injected form component for new commitment
+                    <CommitmentForm roundId={roundId} userId={user.id} />
+                )}
             </Card>
             {userCommitment && (
                 <Card title="Your Uploaded Files">
