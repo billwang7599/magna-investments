@@ -46,6 +46,12 @@ export default async function Layout({
                     >
                         Settings
                     </Link>
+                    <Link
+                        href="/dashboard/datadump"
+                        className="text-text-secondary hover:text-primary font-ui text-ui transition-colors"
+                    >
+                        Data Export
+                    </Link>
                 </nav>
                 <div className="mt-auto pt-8 border-t border-border">
                     <a
