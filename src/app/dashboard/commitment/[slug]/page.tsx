@@ -38,10 +38,11 @@ export default async function CommitmentPage({
         (c) => c.investorUserId === user.id,
     );
 
-    let fileList: { fileName: string; signedUrl: string | null }[] = [];
-    if (userCommitment) {
-        fileList = await getAllDownloadUrls("documents", userCommitment.id);
+    if (!userCommitment) {
+        notFound();
     }
+
+    const fileList = await getAllDownloadUrls("documents", userCommitment.id);
 
     return (
         <div className="max-w-2xl mx-auto py-8 flex flex-col gap-8">
@@ -96,34 +97,29 @@ export default async function CommitmentPage({
                 </div>
             </Card>
             <Card title="Your Commitment">
-                {userCommitment ? (
-                    <div className="space-y-4">
-                        <div>
-                            <span className="text-ui text-text-secondary">
-                                Amount Committed:{" "}
-                            </span>
-                            <span className="font-bold">
-                                {round.currency}{" "}
-                                {userCommitment.amountCommitted.toLocaleString()}
-                            </span>
-                        </div>
-                        <div>
-                            <span className="text-ui text-text-secondary">
-                                Status:{" "}
-                            </span>
-                            <span className="font-medium">
-                                {userCommitment.status}
-                            </span>
-                        </div>
-                        <FileDrop
-                            bucket="documents"
-                            commitmentId={userCommitment.id}
-                        />
+                <div className="space-y-4">
+                    <div>
+                        <span className="text-ui text-text-secondary">
+                            Amount Committed:{" "}
+                        </span>
+                        <span className="font-bold">
+                            {round.currency}{" "}
+                            {userCommitment.amountCommitted.toLocaleString()}
+                        </span>
                     </div>
-                ) : (
-                    // Injected form component for new commitment
-                    <CommitmentForm roundId={roundId} userId={user.id} />
-                )}
+                    <div>
+                        <span className="text-ui text-text-secondary">
+                            Status:{" "}
+                        </span>
+                        <span className="font-medium">
+                            {userCommitment.status}
+                        </span>
+                    </div>
+                    <FileDrop
+                        bucket="documents"
+                        commitmentId={userCommitment.id}
+                    />
+                </div>
             </Card>
             {userCommitment && (
                 <Card title="Your Uploaded Files">

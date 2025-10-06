@@ -54,12 +54,12 @@ model User {
     updatedAt DateTime @updatedAt
 
     // A user (as an admin) can create multiple fundraising rounds.
-    createdRounds        Round[]               @relation("CompanyRounds")
+    createdRounds     Round[]               @relation("CompanyRounds")
     // A user (as an investor) can make multiple commitments.
-    investments          Commitment[]          @relation("InvestorCommits")
-    // A user (as an admin) can be responsible for many status changes.
-    commitmentLogChanges CommitmentStatusLog[] @relation("AdminChanges")
-    Invite               Invite[]
+    investments       Commitment[]          @relation("InvestorCommits")
+    Invite            Invite[]
+    adminAuditChanges CommitmentStatusLog[] @relation("AdminAuditChanges")
+    affectedAuditLogs CommitmentStatusLog[] @relation("AffectedUser")
 
     @@map("users")
 }
@@ -125,18 +125,17 @@ model Commitment {
 
 /// The audit trail. An immutable log of every status change for a commitment.
 model CommitmentStatusLog {
-    id        String           @id @default(uuid())
-    oldStatus CommitmentStatus
-    newStatus CommitmentStatus
-    timestamp DateTime         @default(now())
+    id              String     @id @default(uuid())
+    commitmentId    String
+    operationType   String
+    oldRecord       Json?
+    newRecord       Json?
+    changedByUserId String?
+    changedBy       User?      @relation("AdminAuditChanges", fields: [changedByUserId], references: [id])
+    changedAt       DateTime   @default(now())
+    affectedUserId  String?
+    affectedUser    User?      @relation("AffectedUser", fields: [affectedUserId], references: [id])
+    commitment      Commitment @relation(fields: [commitmentId], references: [id])
 
-    // The commitment that was changed.
-    commitmentId String
-    commitment   Commitment @relation(fields: [commitmentId], references: [id])
-
-    // The admin user who made the change.
-    changedByUserId String
-    changedBy       User   @relation("AdminChanges", fields: [changedByUserId], references: [id])
-
-    @@map("commitment_status_logs")
+    @@map("commitments_audit")
 }

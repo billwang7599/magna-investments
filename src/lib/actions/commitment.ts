@@ -55,15 +55,20 @@ export async function updateCommitmentStatus(
     commitmentId: string,
     status: CommitmentStatus,
 ) {
+    console.log("Updating commitment status==========");
+    console.log(commitmentId);
     const commitment = await prisma.commitment.findUnique({
         where: { id: commitmentId },
     });
 
     if (!commitment) throw new Error("Commitment not found");
+    console.log("Commitment:", commitment);
+    console.log("ID:", commitmentId);
+    console.log("Status:", status);
 
     const updatedCommitment = await prisma.commitment.update({
         where: { id: commitmentId },
-        data: { status },
+        data: { status: status },
     });
 
     return updatedCommitment as Commitment;

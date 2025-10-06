@@ -36,6 +36,8 @@ export default async function ContributorsTable({
             </div>
         );
     }
+    console.log("Commitments:", commitments);
+    console.log("Users:", users);
 
     // Map files to commitments
     const filesMap = Object.fromEntries(
