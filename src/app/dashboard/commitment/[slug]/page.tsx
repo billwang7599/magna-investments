@@ -1,7 +1,10 @@
 "use server";
 import { notFound } from "next/navigation";
 import { getRoundById } from "@/lib/actions/round";
-import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
+import {
+    getCommitmentsByRoundId,
+    createCommitment,
+} from "@/lib/actions/commitment";
 import { createClient } from "@/lib/supabase/server";
 import CommitmentForm from "./CommitmentForm";
 import FileDrop from "@/components/FileDrop";
@@ -28,18 +31,17 @@ export default async function CommitmentPage({
     const roundId = params.slug;
     const round = await getRoundById(roundId);
 
-    if (!round) {
-        notFound();
-    }
-
     // Fetch all commitments for this round, filter for this user
     const commitments = await getCommitmentsByRoundId(roundId);
-    const userCommitment = commitments.find(
-        (c) => c.investorUserId === user.id,
-    );
+    let userCommitment = commitments.find((c) => c.investorUserId === user.id);
 
     if (!userCommitment) {
-        notFound();
+        // Auto-create a commitment for the user with the round's minContributionAmount
+        userCommitment = await createCommitment(
+            roundId,
+            user.id,
+            round.minContributionAmount,
+        );
     }
 
     const fileList = await getAllDownloadUrls("documents", userCommitment.id);
