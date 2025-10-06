@@ -1,27 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/Button";
-import { $Enums } from "@/generated/prisma";
+import { $Enums, Commitment, User } from "@/generated/prisma";
 import Table from "@/components/Table";
-
-type Commitment = {
-    id: string;
-    investorUserId: string;
-    amountCommitted: number;
-    status: $Enums.CommitmentStatus;
-};
-
-type User = {
-    id: string;
-    name: string | null;
-    email: string | null;
-};
-
-type Props = {
-    initialCommitments: Commitment[];
-    userMap: Record<string, User>;
-    filesMap: Record<string, { fileName: string; signedUrl: string | null }[]>;
-};
 
 import { useRouter } from "next/navigation";
 import { updateCommitmentStatus } from "@/lib/actions/commitment";
@@ -30,7 +11,11 @@ export default function Contributers({
     initialCommitments,
     userMap,
     filesMap,
-}: Props) {
+}: {
+    initialCommitments: Commitment[];
+    userMap: Record<string, User>;
+    filesMap: Record<string, { fileName: string; signedUrl: string | null }[]>;
+}) {
     const [statuses, setStatuses] = useState<
         Record<string, $Enums.CommitmentStatus>
     >(() =>

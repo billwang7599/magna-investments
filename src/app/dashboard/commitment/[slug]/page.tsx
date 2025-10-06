@@ -10,11 +10,11 @@ import { getAllDownloadUrls } from "@/lib/actions/file";
 import React from "react";
 import Link from "next/link";
 
-type Props = {
+export default async function CommitmentPage({
+    params,
+}: {
     params: { slug: string };
-};
-
-export default async function CommitmentPage({ params }: Props) {
+}) {
     // SSR: Get current user from Supabase
     const supabase = await createClient();
     const {

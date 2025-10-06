@@ -12,12 +12,13 @@ import { getCommitmentsByRoundId } from "@/lib/actions/commitment";
 import { getAllDownloadUrls } from "@/lib/actions/file";
 import PublicToggle from "./PublicToggle";
 
-type Props = {
+export default async function RoundDetailsPage({
+    params,
+    searchParams,
+}: {
     params: { slug: string };
     searchParams: Record<string, string | string[] | undefined>;
-};
-
-export default async function RoundDetailsPage({ params }: Props) {
+}) {
     // SSR: Get current user from Supabase
     const supabase = await createClient();
     const {

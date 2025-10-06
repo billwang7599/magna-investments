@@ -3,14 +3,12 @@ import React, { useTransition, useState } from "react";
 import { setRoundPublic } from "@/lib/actions/round";
 import { Button } from "@/components/Button";
 
-type PublicToggleProps = {
-    roundId: string;
-    initialPublic: boolean;
-};
-
-const PublicToggle: React.FC<PublicToggleProps> = ({
+const PublicToggle = ({
     roundId,
     initialPublic,
+}: {
+    roundId: string;
+    initialPublic: boolean;
 }) => {
     const [isPublic, setIsPublic] = useState(initialPublic);
     const [isPending, startTransition] = useTransition();

@@ -4,17 +4,15 @@ import { Button } from "@/components/Button";
 import { $Enums } from "@/generated/prisma";
 import { setRoundStatus } from "@/lib/actions/round";
 
-type Props = {
-    roundId: string;
-    initialStatus: $Enums.RoundStatus;
-    onStatusChangeAction?: (newStatus: $Enums.RoundStatus) => void;
-};
-
 export default function RoundStatusDropdown({
     roundId,
     initialStatus,
     onStatusChangeAction,
-}: Props) {
+}: {
+    roundId: string;
+    initialStatus: $Enums.RoundStatus;
+    onStatusChangeAction?: (newStatus: $Enums.RoundStatus) => void;
+}) {
     const [status, setStatus] = useState<$Enums.RoundStatus>(initialStatus);
     const [dirty, setDirty] = useState(false);
     const [error, setError] = useState<string | null>(null);

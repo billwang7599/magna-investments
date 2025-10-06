@@ -2,15 +2,12 @@ import Card from "@/components/Card";
 import { Round } from "@/generated/prisma";
 import Link from "next/link";
 
-interface RoundListProps {
+type Props = {
     rounds: Round[];
     emptyText?: string;
-}
+};
 
-const RoundList: React.FC<RoundListProps> = ({
-    rounds,
-    emptyText = "No rounds found.",
-}) => {
+const RoundList = ({ rounds, emptyText = "No rounds found." }: Props) => {
     if (!rounds || rounds.length === 0) {
         return (
             <div className="text-center text-text-secondary py-8">

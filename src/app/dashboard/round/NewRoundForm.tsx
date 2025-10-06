@@ -6,15 +6,12 @@ import { Currency, Round } from "@/generated/prisma";
 import { useRouter } from "next/navigation";
 import { createRound } from "@/lib/actions/round";
 
-type NewRoundFormProps = {
+type Props = {
     userId: string;
     onRoundCreated?: (round: Round) => void;
 };
 
-const NewRoundForm: React.FC<NewRoundFormProps> = ({
-    userId,
-    onRoundCreated,
-}) => {
+const NewRoundForm = ({ userId, onRoundCreated }: Props) => {
     const [name, setName] = useState("");
     const [targetAmount, setTargetAmount] = useState<number | "">("");
     const [minContributionAmount, setMinContributionAmount] = useState<
