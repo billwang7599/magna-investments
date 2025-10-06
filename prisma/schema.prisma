@@ -1,141 +1,113 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-    provider = "prisma-client-js"
-    output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-
-// ----------------------------------------
-// ENUMS
-// Using enums for status fields ensures data integrity.
-// ----------------------------------------
-enum RoundStatus {
-    ACTIVE
-    CLOSED
-}
-
-enum CommitmentStatus {
-    PENDING_REVIEW
-    APPROVED
-    FUNDED
-    REJECTED
-}
-
-enum InviteStatus {
-    PENDING
-    ACCEPTED
-    REJECTED
-}
-
-enum Currency {
-    USDC
-    USDT
-}
-
-// ----------------------------------------
-// MODELS
-// ----------------------------------------
 
 /// Represents a user who can be an admin (company), an investor, or both.
 model User {
-    id        String   @id // must match auth
-    name      String
-    email     String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id                String                @id
+  name              String
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  email             String                @unique
+  investments       Commitment[]          @relation("InvestorCommits")
+  affectedAuditLogs CommitmentStatusLog[] @relation("AffectedUser")
+  adminAuditChanges CommitmentStatusLog[] @relation("AdminAuditChanges")
+  Invite            Invite[]
+  createdRounds     Round[]               @relation("CompanyRounds")
 
-    // A user (as an admin) can create multiple fundraising rounds.
-    createdRounds     Round[]               @relation("CompanyRounds")
-    // A user (as an investor) can make multiple commitments.
-    investments       Commitment[]          @relation("InvestorCommits")
-    Invite            Invite[]
-    adminAuditChanges CommitmentStatusLog[] @relation("AdminAuditChanges")
-    affectedAuditLogs CommitmentStatusLog[] @relation("AffectedUser")
-
-    @@map("users")
+  @@map("users")
 }
 
 /// Represents a single fundraising round created by a company/admin.
 model Round {
-    id                    String      @id @default(uuid())
-    name                  String
-    targetAmount          Float
-    minContributionAmount Float
-    maxContributionAmount Float
-    status                RoundStatus @default(ACTIVE)
-    createdAt             DateTime    @default(now())
-    updatedAt             DateTime    @updatedAt
-    currency              Currency
-    public                Boolean     @default(false)
+  id                    String       @id @default(uuid())
+  name                  String
+  targetAmount          Float
+  status                RoundStatus  @default(ACTIVE)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  companyUserId         String
+  public                Boolean      @default(false)
+  currency              Currency
+  maxContributionAmount Float
+  minContributionAmount Float
+  commitments           Commitment[]
+  Invite                Invite[]
+  company               User         @relation("CompanyRounds", fields: [companyUserId], references: [id])
 
-    // The admin/company user who created this round.
-    companyUserId String
-    company       User   @relation("CompanyRounds", fields: [companyUserId], references: [id])
-
-    // A round can have many commitments from different investors.
-    commitments Commitment[]
-
-    Invite Invite[]
-
-    @@map("rounds")
+  @@map("rounds")
 }
 
 model Invite {
-    id        String       @id @default(uuid())
-    status    InviteStatus @default(PENDING)
-    userEmail String
-    roundId   String
-    round     Round        @relation(fields: [roundId], references: [id])
-    user      User         @relation(fields: [userEmail], references: [email])
+  id        String       @id @default(uuid())
+  status    InviteStatus @default(PENDING)
+  userEmail String
+  roundId   String
+  round     Round        @relation(fields: [roundId], references: [id])
+  user      User         @relation(fields: [userEmail], references: [email])
 
-    @@unique([userEmail, roundId])
-    @@map("invites")
+  @@unique([userEmail, roundId])
+  @@map("invites")
 }
 
 /// Represents an investor's commitment to a specific fundraising round.
 model Commitment {
-    id              String           @id @default(uuid())
-    amountCommitted Float
-    status          CommitmentStatus @default(PENDING_REVIEW)
-    createdAt       DateTime         @default(now())
-    updatedAt       DateTime         @updatedAt
+  id              String                @id @default(uuid())
+  amountCommitted Float
+  status          CommitmentStatus      @default(PENDING_REVIEW)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  roundId         String
+  investorUserId  String
+  investor        User                  @relation("InvestorCommits", fields: [investorUserId], references: [id])
+  round           Round                 @relation(fields: [roundId], references: [id])
+  statusLogs      CommitmentStatusLog[]
 
-    // The round this commitment belongs to.
-    roundId String
-    round   Round  @relation(fields: [roundId], references: [id])
-
-    // The investor user who made this commitment.
-    investorUserId String
-    investor       User   @relation("InvestorCommits", fields: [investorUserId], references: [id])
-
-    // The audit trail for this commitment's status changes.
-    statusLogs CommitmentStatusLog[]
-
-    @@map("commitments")
+  @@map("commitments")
 }
 
 /// The audit trail. An immutable log of every status change for a commitment.
 model CommitmentStatusLog {
-    id              String     @id @default(uuid())
-    commitmentId    String
-    operationType   String
-    oldRecord       Json?
-    newRecord       Json?
-    changedByUserId String?
-    changedBy       User?      @relation("AdminAuditChanges", fields: [changedByUserId], references: [id])
-    changedAt       DateTime   @default(now())
-    affectedUserId  String?
-    affectedUser    User?      @relation("AffectedUser", fields: [affectedUserId], references: [id])
-    commitment      Commitment @relation(fields: [commitmentId], references: [id])
+  id              String     @id @default(uuid())
+  commitmentId    String
+  operationType   String
+  oldRecord       Json?
+  newRecord       Json?
+  changedByUserId String?
+  changedAt       DateTime   @default(now())
+  affectedUserId  String?
+  affectedUser    User?      @relation("AffectedUser", fields: [affectedUserId], references: [id])
+  changedBy       User?      @relation("AdminAuditChanges", fields: [changedByUserId], references: [id])
+  commitment      Commitment @relation(fields: [commitmentId], references: [id])
 
-    @@map("commitments_audit")
+  @@map("commitments_audit")
+}
+
+enum RoundStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum CommitmentStatus {
+  PENDING_REVIEW
+  APPROVED
+  FUNDED
+  REJECTED
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum Currency {
+  USDC
+  USDT
 }
