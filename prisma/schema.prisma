@@ -1,113 +1,113 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+    provider = "prisma-client-js"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 /// Represents a user who can be an admin (company), an investor, or both.
 model User {
-  id                String                @id
-  name              String
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  email             String                @unique
-  investments       Commitment[]          @relation("InvestorCommits")
-  affectedAuditLogs CommitmentStatusLog[] @relation("AffectedUser")
-  adminAuditChanges CommitmentStatusLog[] @relation("AdminAuditChanges")
-  Invite            Invite[]
-  createdRounds     Round[]               @relation("CompanyRounds")
+    id                String                @id
+    name              String
+    createdAt         DateTime              @default(now())
+    updatedAt         DateTime              @updatedAt
+    email             String                @unique
+    investments       Commitment[]          @relation("InvestorCommits")
+    affectedAuditLogs CommitmentStatusLog[] @relation("AffectedUser")
+    adminAuditChanges CommitmentStatusLog[] @relation("AdminAuditChanges")
+    Invite            Invite[]
+    createdRounds     Round[]               @relation("CompanyRounds")
 
-  @@map("users")
+    @@map("users")
 }
 
 /// Represents a single fundraising round created by a company/admin.
 model Round {
-  id                    String       @id @default(uuid())
-  name                  String
-  targetAmount          Float
-  status                RoundStatus  @default(ACTIVE)
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
-  companyUserId         String
-  public                Boolean      @default(false)
-  currency              Currency
-  maxContributionAmount Float
-  minContributionAmount Float
-  commitments           Commitment[]
-  Invite                Invite[]
-  company               User         @relation("CompanyRounds", fields: [companyUserId], references: [id])
+    id                    String       @id @default(uuid())
+    name                  String
+    targetAmount          Float
+    status                RoundStatus  @default(ACTIVE)
+    createdAt             DateTime     @default(now())
+    updatedAt             DateTime     @updatedAt
+    companyUserId         String
+    public                Boolean      @default(false)
+    currency              Currency
+    maxContributionAmount Float
+    minContributionAmount Float
+    commitments           Commitment[]
+    Invite                Invite[]
+    company               User         @relation("CompanyRounds", fields: [companyUserId], references: [id])
 
-  @@map("rounds")
+    @@map("rounds")
 }
 
 model Invite {
-  id        String       @id @default(uuid())
-  status    InviteStatus @default(PENDING)
-  userEmail String
-  roundId   String
-  round     Round        @relation(fields: [roundId], references: [id])
-  user      User         @relation(fields: [userEmail], references: [email])
+    id        String       @id @default(uuid())
+    status    InviteStatus @default(PENDING)
+    userEmail String
+    roundId   String
+    round     Round        @relation(fields: [roundId], references: [id])
+    user      User         @relation(fields: [userEmail], references: [email])
 
-  @@unique([userEmail, roundId])
-  @@map("invites")
+    @@unique([userEmail, roundId])
+    @@map("invites")
 }
 
 /// Represents an investor's commitment to a specific fundraising round.
 model Commitment {
-  id              String                @id @default(uuid())
-  amountCommitted Float
-  status          CommitmentStatus      @default(PENDING_REVIEW)
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  roundId         String
-  investorUserId  String
-  investor        User                  @relation("InvestorCommits", fields: [investorUserId], references: [id])
-  round           Round                 @relation(fields: [roundId], references: [id])
-  statusLogs      CommitmentStatusLog[]
+    id              String                @id @default(uuid())
+    amountCommitted Float
+    status          CommitmentStatus      @default(PENDING_REVIEW)
+    createdAt       DateTime              @default(now())
+    updatedAt       DateTime              @updatedAt
+    roundId         String
+    investorUserId  String
+    investor        User                  @relation("InvestorCommits", fields: [investorUserId], references: [id])
+    round           Round                 @relation(fields: [roundId], references: [id])
+    statusLogs      CommitmentStatusLog[]
 
-  @@map("commitments")
+    @@map("commitments")
 }
 
 /// The audit trail. An immutable log of every status change for a commitment.
 model CommitmentStatusLog {
-  id              String     @id @default(uuid())
-  commitmentId    String
-  operationType   String
-  oldRecord       Json?
-  newRecord       Json?
-  changedByUserId String?
-  changedAt       DateTime   @default(now())
-  affectedUserId  String?
-  affectedUser    User?      @relation("AffectedUser", fields: [affectedUserId], references: [id])
-  changedBy       User?      @relation("AdminAuditChanges", fields: [changedByUserId], references: [id])
-  commitment      Commitment @relation(fields: [commitmentId], references: [id])
+    id              String     @id @default(uuid())
+    commitmentId    String
+    operationType   String
+    oldRecord       Json?
+    newRecord       Json?
+    changedByUserId String?
+    changedAt       DateTime   @default(now())
+    affectedUserId  String?
+    affectedUser    User?      @relation("AffectedUser", fields: [affectedUserId], references: [id])
+    changedBy       User?      @relation("AdminAuditChanges", fields: [changedByUserId], references: [id])
+    commitment      Commitment @relation(fields: [commitmentId], references: [id])
 
-  @@map("commitments_audit")
+    @@map("commitments_audit")
 }
 
 enum RoundStatus {
-  ACTIVE
-  CLOSED
+    ACTIVE
+    CLOSED
 }
 
 enum CommitmentStatus {
-  PENDING_REVIEW
-  APPROVED
-  FUNDED
-  REJECTED
+    PENDING_REVIEW
+    APPROVED
+    FUNDED
+    REJECTED
 }
 
 enum InviteStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+    PENDING
+    ACCEPTED
+    REJECTED
 }
 
 enum Currency {
-  USDC
-  USDT
+    USDC
+    USDT
 }

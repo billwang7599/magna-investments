@@ -1,6 +1,7 @@
 import { PrismaClient } from "@/generated/prisma";
 
 // Removed isNode, use typeof global !== "undefined" inline
+console.log("DB Link", process.env.DATABASE_URL);
 
 declare global {
     var prisma: PrismaClient | undefined;
